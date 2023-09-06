@@ -5,10 +5,12 @@ import "./BLS.sol";
 
 contract Verify {
     bytes32 domain;
-    uint256[4] publicKey; 
-    uint256[2] signature;   
+    uint256[4] publicKey;
+    uint256[2] signature;
+    address private immutable COST_ESTIMATOR_ADDRESS;
 
-    constructor() {
+    constructor(address _estimatorAddress) {
+        COST_ESTIMATOR_ADDRESS = _estimatorAddress;
         domain = 0x0000000000000000000000000000000000000000000000000000000000000020;
         publicKey[0] =  1877680754511875309899085821046020641041516699522550968201931210511122361188;
         publicKey[1] =  1879687745237862349771417085220368195630510774060410176566704734657946401647;
@@ -23,7 +25,7 @@ contract Verify {
         bytes32 message = 0x321580d53f250a51ed527f5f7856bdd2ecbbf19f722ee6acc1804f63462375f3;
         bool callSuccess;
         bool checkSuccess;
-        (checkSuccess, callSuccess) = BLS.verifySingle(signature, publicKey, BLS.hashToPoint(domain, abi.encode(message)));
+        (checkSuccess, callSuccess) = BLS.verifySingle(signature, publicKey, BLS.hashToPoint(domain, abi.encode(message)), COST_ESTIMATOR_ADDRESS);
         require(callSuccess, "Incorrect Publickey or Signature Points");
         require(checkSuccess, "Incorrect Input Message");
         return true;

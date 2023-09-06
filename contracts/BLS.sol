@@ -8,7 +8,7 @@ import {
 
 
 library BLS {
-    
+
     uint256 private constant N = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
     uint256 private constant N_G2_X1 = 11559732032986387107991004021392285783925812861821192530917403151452391805634;
     uint256 private constant N_G2_X0 = 10857046999023057135944570762232829481370756359578518086990519993285655852781;
@@ -18,14 +18,14 @@ library BLS {
     uint256 private constant Z1 = 0x000000000000000059e26bcea0d48bacd4f263f1acdb5c4f5763473177fffffe;
     uint256 private constant T24 = 0x1000000000000000000000000000000000000000000000000;
     uint256 private constant MASK24 = 0xffffffffffffffffffffffffffffffffffffffffffffffff;
-    
-    address private constant COST_ESTIMATOR_ADDRESS =
-        0x079d8077C465BD0BF0FC502aD2B846757e415661;
+
+//    address private constant COST_ESTIMATOR_ADDRESS = 0x079d8077C465BD0BF0FC502aD2B846757e415661;
 
     function verifySingle(
         uint256[2] memory signature,
         uint256[4] memory pubkey,
-        uint256[2] memory message
+        uint256[2] memory message,
+        address estimatorAddress
     ) internal view returns (bool, bool) {
         uint256[12] memory input =
             [
@@ -43,14 +43,14 @@ library BLS {
                 pubkey[2]
             ];
         uint256[1] memory out;
-        
-        uint256 precompileGasCost = 113133000;
-        
-        // uint256 precompileGasCost =
-        //     BNPairingPrecompileCostEstimator(COST_ESTIMATOR_ADDRESS).getGasCost(
-        //         2
-        //     );
-        
+
+//        uint256 precompileGasCost = 113_133_000;
+
+         uint256 precompileGasCost =
+             BNPairingPrecompileCostEstimator(estimatorAddress).getGasCost(
+                 2
+             );
+
         bool callSuccess;
         // solium-disable-next-line security/no-inline-assembly
         assembly {
@@ -72,7 +72,8 @@ library BLS {
     function verifyMultiple(
         uint256[2] memory signature,
         uint256[4][] memory pubkeys,
-        uint256[2][] memory messages
+        uint256[2][] memory messages,
+        address estimatorAddress
     ) internal view returns (bool checkResult, bool callSuccess) {
         uint256 size = pubkeys.length;
         require(size > 0, "BLS: number of public key is zero");
@@ -98,7 +99,7 @@ library BLS {
         }
         uint256[1] memory out;
 
-        uint256 precompileGasCost = BNPairingPrecompileCostEstimator(COST_ESTIMATOR_ADDRESS).getGasCost(size + 1);
+        uint256 precompileGasCost = BNPairingPrecompileCostEstimator(estimatorAddress).getGasCost(size + 1);
         assembly {
             callSuccess := staticcall(
                 precompileGasCost,
