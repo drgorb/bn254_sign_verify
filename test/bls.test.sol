@@ -1,18 +1,26 @@
 pragma solidity ^0.8.7;
 
 import "forge-std/Test.sol";
-import "../contracts/BNPairingPrecompileCostEstimator.sol";
-import "../contracts/BLS.sol";
+import "../contracts/Verify.sol";
 
 contract ContractBTest is Test {
-  BNPairingPrecompileCostEstimator estimator;
-  bytes32 domain;
-  uint256[4] publicKey;
-  uint256[2] signature;
+  Verify verifier;
 
   function setUp() public {
-    estimator = new BNPairingPrecompileCostEstimator();
+    verifier = new Verify();
+  }
+
+  function test_CanEstimateGas() public {
+
+  }
+
+  function test_GasEstimate() public {
+    bytes32 domain;
+    uint256[4] memory publicKey;
+    uint256[2] memory signature;
+    bytes32 message = 0x321580d53f250a51ed527f5f7856bdd2ecbbf19f722ee6acc1804f63462375f3;
     domain = 0x0000000000000000000000000000000000000000000000000000000000000020;
+
     publicKey[0] =  1877680754511875309899085821046020641041516699522550968201931210511122361188;
     publicKey[1] =  1879687745237862349771417085220368195630510774060410176566704734657946401647;
     publicKey[2] =  10177664824327229270631241062558466194853353905576267792570130720130119743401;
@@ -20,15 +28,8 @@ contract ContractBTest is Test {
 
     signature[0] = 3789870118542016974105699138161781008918636358438246688710078193373583696417;
     signature[1] = 20766815278548398344257910495536643911108480586016736348038320126600861929561;
-  }
 
-  function test_GasEstimate() public {
-    bytes32 message = 0x321580d53f250a51ed527f5f7856bdd2ecbbf19f722ee6acc1804f63462375f3;
-    bool callSuccess;
-    bool checkSuccess;
-    (checkSuccess, callSuccess) = BLS.verifySingle(signature, publicKey, BLS.hashToPoint(domain, abi.encode(message)), address(estimator));
-    require(callSuccess, "Incorrect Publickey or Signature Points");
-    require(checkSuccess, "Incorrect Input Message");
+    assertTrue(verifier.verify(domain, publicKey, signature, message));
   }
 
 }
