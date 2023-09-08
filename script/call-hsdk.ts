@@ -7,16 +7,16 @@ async function main() {
   client.setMirrorNetwork('testnet.mirrornode.hedera.com:443')
 
   const contractId = "0.0.1183384";
-  const contractByteCodeQuery = new ContractByteCodeQuery().setContractId(contractId);
   const scRead2 = new ContractCallQuery()
       .setContractId(contractId)
-      .setGas(8_000_000)
+      .setGas(1_000_000)
       .setFunction('verifyDefaultMessage')
   let cost = await scRead2.getCost(client);
   cost = new Hbar(cost.to(HbarUnit.Tinybar).multipliedBy(1).dividedToIntegerBy(1), HbarUnit.Tinybar);
   console.log(`- Cost to query the bytecode for the contract: ${cost.to(HbarUnit.Hbar).toString()}`);
   const scRead2Tx = await scRead2.setQueryPayment(cost).execute(client);
   const scRead2ReturnValue = scRead2Tx.getBool();
+  console.log(`- The verifyDefaultMessage() returned: ${scRead2ReturnValue}`);
   return scRead2ReturnValue ? "Success" : "Failure";
 }
 

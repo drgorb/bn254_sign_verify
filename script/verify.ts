@@ -4,10 +4,7 @@ import { abi } from "../out/Verify.sol/Verify.json"
 import { hexPrivateKey } from "./account";
 
 const verifyMessage = async () => {
-  const provider = new ethers.WebSocketProvider("wss://relay-ws.dev.hashgraph-group.com", {
-    name: "hedera",
-    chainId: 296
-  });
+  const provider = new ethers.JsonRpcProvider("https://testnet.hashio.io/api");
   const wallet = new ethers.Wallet(hexPrivateKey, provider);
   const contract = new ethers.Contract("0x0000000000000000000000000000000000120e98", abi, wallet);
   const message = "0x321580d53f250a51ed527f5f7856bdd2ecbbf19f722ee6acc1804f63462375f3";
